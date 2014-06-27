@@ -11,6 +11,9 @@ MeteorFile = function (doc, options) {
   this.type = doc.type;
   this.size = doc.size;
   this.data = doc.data;
+  this.startedAt = moment();
+  this.finishAt = undefined;
+  this.duration = undefined;
   this.start = defaultZero(doc.start);
   this.end = defaultZero(doc.end);
   this.bytesRead = defaultZero(doc.bytesRead);
@@ -210,17 +213,27 @@ if (Meteor.isClient) {
 
       if (err)
         this.status = err.toString();
-      else if (this.uploadProgress == 100)
+      else if (this.uploadProgress == 100){
         this.status = "Upload complete";
-      else if (this.uploadProgress > 0)
+        this.finishAt = moment();
+        this.duration = this.finishAt.diff(this.startedAt, 'seconds');
+      }
+      else if (this.uploadProgress > 0){
         this.status = "File uploading";
-      else if (this.readProgress > 0)
+        this.duration = moment().diff(this.startedAt, 'seconds');
+      }
+      else if (this.readProgress > 0){
         this.status = "File loading";
+        this.duration = moment().diff(this.startedAt, 'seconds');
+      }
+
 
       if (this.collection) {
         this.collection.update(this._id, {
           $set: {
             status: this.status,
+            duration: this.duration,
+            finishAt: this.finishAt,
             readProgress: this.readProgress,
             uploadProgress: this.uploadProgress
           }
