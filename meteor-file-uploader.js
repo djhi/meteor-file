@@ -5,6 +5,7 @@ Template._meteorFileUploader.created = function() {
   this.data.size = (this.data.size && /^(\d|\*|\+|\-|\/)+$/.test(this.data.size))?eval(this.data.size):null;
   this.data.options = _.extend({}, this.data);
   this.data.files = new Meteor.Collection(null);
+  this.data.uiFiles = this.data.files.find();
 };
 
 Template._meteorFileUploader.events({
